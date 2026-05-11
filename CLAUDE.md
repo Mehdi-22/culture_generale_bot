@@ -1,45 +1,128 @@
-# Bot Culture Générale — Telegram (Gemini)
+# Bot Culture Générale CEM-CG — Telegram (Claude)
+
+> Etat : v2.1 — RUNNING depuis 2026-05-11
+> Stack : Claude Anthropic API (claude-sonnet-4-6) · Python 3.10+ · APScheduler · Playwright
+
+---
 
 ## Contexte
-Bot de surveillance web qui détecte des sujets d'actualité et génère automatiquement
-une composition complète selon la méthode de composition militaire marocaine,
-puis l'envoie via Telegram. Utilise Google Gemini API (gratuit).
+Bot de veille géopolitique et militaire. Chaque lundi/mercredi/vendredi à 9h, il envoie
+un digest thématique de 10 articles max sur Telegram. L'utilisateur choisit 1-2 numéros
+et le bot génère une composition complète selon la méthode militaire marocaine (21 §).
+
+---
 
 ## Stack Technique
 - Python 3.10+
-- Google Gemini API (gemini-2.0-flash) — GRATUIT
-- python-telegram-bot pour Telegram
-- feedparser + BeautifulSoup pour le scraping
-- APScheduler pour la planification
+- **Claude Anthropic API** (claude-sonnet-4-6) — génération compositions
+- APScheduler (BackgroundScheduler) — crons
+- feedparser — scraping RSS
+- requests + BeautifulSoup — scraping HTML
+- Playwright (chromium headless) — sites JS-rendus (IRES, ISS Africa)
+- Telegram Bot API (polling getUpdates) — envoi + réception commandes
+
+---
 
 ## Structure du Projet
 ```
-bot_culture_generale/
-├── main.py
-├── config.py
-├── scraper.py
-├── generator.py
-├── telegram_bot.py
-├── storage.py
+CEM-CG/
+├── main.py              ← scheduler + run_digest() + check_user_commands() + send_weekly_planning()
+├── config.py            ← WEEKLY_SCHEDULE, POLE_KEYWORDS, BOOST_KEYWORDS, SITES_TO_MONITOR
+├── scraper.py           ← RSS / HTML / Playwright + get_articles_for_pole()
+├── generator.py         ← appel Claude API, composition 21 §
+├── telegram_bot.py      ← send_digest(), send(), get_updates(), parse_selection()
+├── storage.py           ← seen_topics.json + pending_articles.json + update_offset.json
 ├── prompts/
 │   ├── __init__.py
-│   └── methode.py
+│   └── methode.py       ← SYSTEM_PROMPT complet méthode de composition
 ├── data/
-│   └── seen_topics.json
-├── .env
+│   ├── seen_topics.json       ← articles déjà composés (dédup)
+│   ├── pending_articles.json  ← digest en attente de sélection utilisateur
+│   └── update_offset.json     ← offset Telegram getUpdates
+├── .env                 ← clés API (non commité)
 ├── .env.example
 ├── requirements.txt
-├── bot.log
-└── README.md
+└── bot.log
 ```
+
+---
 
 ## Variables d'Environnement (.env)
 ```
-GEMINI_API_KEY=AIzaSy-votre-cle-ici
-TELEGRAM_BOT_TOKEN=123456789:ABC...
-TELEGRAM_CHAT_ID=votre-chat-id
-CHECK_INTERVAL_HOURS=6
+ANTHROPIC_API_KEY=sk-ant-...
+TELEGRAM_BOT_TOKEN=...
+TELEGRAM_CHAT_ID=741215023
+CHECK_INTERVAL_HOURS=24
+DIGEST_HOUR=9
 ```
+
+---
+
+## Planning hebdomadaire (v2.1)
+
+| Jour | Pôle | Sources principales |
+|------|------|---------------------|
+| **Lundi 9h** | Maroc / Maghreb | IRES, MAP News, Geopolitique.ma, IRIS, Hespress |
+| **Mercredi 9h** | Économie & Développement | Jeune Afrique, UNECA, Le Monde |
+| **Vendredi 9h** | Géopolitique / RI | RFI, Le Monde, Ifri, IRIS |
+| **Dimanche 20h** | Planning semaine | Message automatique planning L/M/V |
+
+---
+
+## Sources configurées (12 sources)
+
+| Source | Type | Priorité |
+|--------|------|----------|
+| IRIS | RSS | 1 — think tank |
+| UNECA | RSS | 1 — institutionnel ONU |
+| IRES | Playwright | 1 — institutionnel Maroc |
+| ISS Africa | Playwright | 1 — sécurité africaine (EN) |
+| Ifri | HTML | 1 — think tank FR |
+| Le Monde | RSS | 2 — media référence |
+| RFI | RSS | 2 — media référence |
+| Jeune Afrique | RSS | 2 — media panafricain |
+| BBC Afrique | RSS | 2 — media continental |
+| MAP News | RSS | 3 — media local |
+| Hespress | RSS | 3 — media local |
+| Geopolitique.ma | HTML | 3 — media analytique local |
+
+---
+
+## Boost automatique (v2.1)
+Les articles sur drones, IA militaire, Maroc-Afrique, FAR, cybersécurité, guerre hybride
+remontent automatiquement en tête du digest avec le tag `[>]`.
+Configurable dans `BOOST_KEYWORDS` dans [config.py](config.py).
+
+---
+
+## Flux d'exécution
+
+```
+[L/M/V 9h] run_digest()
+  → scraper.get_articles_for_pole(sources_du_pole, keywords)
+  → tri boost → priorité source → max 10 articles
+  → storage.save_pending()
+  → sender.send_digest()          ← digest Telegram avec [>] sur boostés
+
+[En continu 60s] check_user_commands()
+  → sender.get_updates(offset)
+  → parse_selection("3" ou "1,3") → max 2 articles
+  → generator.generate(article)   ← composition Claude 21 §
+  → sender.send(composition)
+  → storage.mark_seen()
+
+[Dimanche 20h] send_weekly_planning()
+  → message planning semaine à venir
+```
+
+---
+
+## Interaction Telegram
+- Répondre `3` → composition article 3
+- Répondre `1,3` → 2 compositions (article 1 puis article 3)
+- Max 2 articles par sélection
+
+---
 
 ## Méthode de Composition — Structure 21 Paragraphes
 
@@ -80,27 +163,36 @@ CHECK_INTERVAL_HOURS=6
 - "Ayant des objectifs visant [X], [sujet] constituerait un levier dans la mesure où [Y]"
 - "Au-delà de [X] et [Y], les défis sont liés surtout à [Z]"
 
-## Règles Absolues
+## Règles Absolues Composition
 - Phrases courtes (15-25 mots)
 - Vocabulaire simple
 - IS = Idée abstraite + Fait + Exemple
 - Vérifier Limites : Temps / Espace / Domaine
 - IM = 1 seule phrase sans point ni point-virgule
 
-## Modèle Gemini
-- Modèle : gemini-2.0-flash
-- temperature : 0.7
-- max_output_tokens : 4000
-- system_instruction : SYSTEM_PROMPT complet dans prompts/methode.py
+---
 
-## Pipeline d'Exécution
-1. Scraping RSS/HTML des sites configurés (toutes les 6h)
-2. Filtrage par mots-clés pertinents
-3. Vérification des doublons (seen_topics.json)
-4. Génération Gemini (composition 21 §)
-5. Envoi Telegram en chunks de 4000 chars
-6. Marquage du sujet comme traité
+## Lancer le bot
+```bash
+cd "c:\Users\gameh\Documents\Claude\Projects\Saas Voip\CEM-CG"
+python main.py
+```
 
-## Thématiques des Sujets
-Économie, sécurité, défense, environnement, géopolitique, technologie militaire,
-gouvernance, diplomatie, relations internationales, Maroc/Maghreb/Afrique
+## GitHub
+```
+https://github.com/Gamehdi05/CEM-CG
+```
+
+---
+
+## Travail réalisé
+
+| Session | Date | Réalisé |
+|---------|------|---------|
+| S1 | 2026-05 | Clone repo Mehdi-22, config Claude API + Telegram, push Gamehdi05/CEM-CG |
+| S2 | 2026-05 | 12 sources (RSS + HTML + Playwright), IRIS/UNECA/Ifri/ISS Africa/IRES/Geopolitique.ma |
+| S3 | 2026-05 | v2 : digest thématique + sélection interactive (pending_articles + getUpdates polling) |
+| S4 | 2026-05-11 | v2.1 : planning L/M/V, boost militaire/IA [>], planning dimanche 20h. BOT LANCÉ. |
+
+## Prochaine étape recommandée
+Valider le flux complet : recevoir digest → répondre "1" → vérifier composition Claude reçue sur Telegram.
