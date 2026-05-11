@@ -48,16 +48,40 @@ class WebScraper:
         resp.raise_for_status()
         soup = BeautifulSoup(resp.text, "html.parser")
         articles = []
-        for tag in soup.find_all(["h2", "h3"], limit=20):
-            a = tag.find("a")
-            if a:
+        base_url = site_config.get("base_url", "")
+        selector = site_config.get("selector")
+        min_title_len = site_config.get("min_title_len", 15)
+
+        if selector:
+            for a in soup.select(selector)[:20]:
+                title = a.get_text(strip=True)
+                if len(title) < min_title_len:
+                    continue
+                href = a.get("href", "")
+                if href and not href.startswith("http") and base_url:
+                    href = base_url.rstrip("/") + "/" + href.lstrip("/")
                 articles.append({
-                    "title": a.get_text(strip=True),
+                    "title": title,
                     "summary": "",
-                    "url": a.get("href", ""),
+                    "url": href,
                     "source": site_config["name"],
                     "date": "",
                 })
+        else:
+            for tag in soup.find_all(["h2", "h3"], limit=20):
+                a = tag.find("a")
+                if a:
+                    title = a.get_text(strip=True)
+                    href = a.get("href", "")
+                    if href and not href.startswith("http") and base_url:
+                        href = base_url.rstrip("/") + "/" + href.lstrip("/")
+                    articles.append({
+                        "title": title,
+                        "summary": "",
+                        "url": href,
+                        "source": site_config["name"],
+                        "date": "",
+                    })
         return articles
 
     def is_relevant(self, article: dict) -> bool:
