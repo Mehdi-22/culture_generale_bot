@@ -18,12 +18,29 @@ TIMEOUT = 10
 class WebScraper:
     def __init__(self, storage: Storage):
         self.storage = storage
+        self._playwright = None
+        self._browser = None
+
+    def _get_browser(self):
+        if self._browser is None:
+            from playwright.sync_api import sync_playwright
+            self._playwright = sync_playwright().start()
+            self._browser = self._playwright.chromium.launch(headless=True)
+        return self._browser
+
+    def close(self):
+        if self._browser:
+            self._browser.close()
+        if self._playwright:
+            self._playwright.stop()
 
     def scrape_site(self, site_config: dict) -> list[dict]:
         articles = []
         try:
             if site_config["type"] == "rss":
                 articles = self._scrape_rss(site_config)
+            elif site_config["type"] == "playwright":
+                articles = self._scrape_playwright(site_config)
             else:
                 articles = self._scrape_html(site_config)
         except Exception as e:
@@ -82,6 +99,39 @@ class WebScraper:
                         "source": site_config["name"],
                         "date": "",
                     })
+        return articles
+
+    def _scrape_playwright(self, site_config: dict) -> list[dict]:
+        browser = self._get_browser()
+        page = browser.new_page()
+        articles = []
+        base_url = site_config.get("base_url", "")
+        selector = site_config.get("selector", "a")
+        min_title_len = site_config.get("min_title_len", 20)
+        text_clean = site_config.get("text_clean")
+        try:
+            page.goto(site_config["url"], wait_until="networkidle", timeout=25000)
+            page.wait_for_timeout(site_config.get("wait_ms", 1000))
+            elements = page.query_selector_all(selector)
+            for el in elements[:20]:
+                raw = el.inner_text().strip()
+                href = el.get_attribute("href") or ""
+                title = raw
+                if text_clean == "after_newline" and "\n" in raw:
+                    title = raw.split("\n", 1)[1].strip()
+                if len(title) < min_title_len:
+                    continue
+                if href and not href.startswith("http") and base_url:
+                    href = base_url.rstrip("/") + "/" + href.lstrip("/")
+                articles.append({
+                    "title": title,
+                    "summary": "",
+                    "url": href,
+                    "source": site_config["name"],
+                    "date": "",
+                })
+        finally:
+            page.close()
         return articles
 
     def is_relevant(self, article: dict) -> bool:

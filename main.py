@@ -69,3 +69,4 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         logging.info("Arret du bot")
         scheduler.shutdown()
+        scraper.close()

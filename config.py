@@ -47,7 +47,29 @@ SITES_TO_MONITOR = [
         "base_url": "https://geopolitique.ma",
         "min_title_len": 20,
     },
-    # Note: IRES, Policy Center, ISS Africa sont JS-rendered (Selenium requis — Phase 3)
+    # --- Pole Playwright (Phase 3 — sites JS-rendered) ---
+    # IRES : source strategique marocaine, publications et rapports prospectifs
+    {
+        "url": "https://www.ires.ma/fr/publications",
+        "name": "IRES",
+        "type": "playwright",
+        "selector": "a:has(h2)",
+        "base_url": "https://www.ires.ma",
+        "min_title_len": 25,
+        "wait_ms": 1500,
+    },
+    # ISS Africa : securite africaine, gouvernance, criminalite transnationale (EN)
+    {
+        "url": "https://issafrica.org/iss-today",
+        "name": "ISS Africa",
+        "type": "playwright",
+        "selector": "a[href*='/iss-today/']",
+        "base_url": "https://issafrica.org",
+        "min_title_len": 20,
+        "text_clean": "after_newline",
+        "wait_ms": 4000,
+    },
+    # Note: Policy Center insuffisant (1 lien seulement, scraping non rentable)
 ]
 
 RELEVANT_KEYWORDS = [
