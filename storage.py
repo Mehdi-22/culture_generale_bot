@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 DATA_FILE = Path("data/seen_topics.json")
+PENDING_FILE = Path("data/pending_articles.json")
+OFFSET_FILE = Path("data/update_offset.json")
 
 
 def _normalize(text: str) -> str:
@@ -59,3 +61,30 @@ class Storage:
         if removed:
             logging.info(f"Cleanup: {removed} entrees supprimees")
             self._save()
+
+    def save_pending(self, articles: list[dict]):
+        numbered = {str(i + 1): a for i, a in enumerate(articles)}
+        PENDING_FILE.write_text(
+            json.dumps(numbered, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+
+    def load_pending(self) -> dict:
+        if not PENDING_FILE.exists():
+            return {}
+        try:
+            return json.loads(PENDING_FILE.read_text(encoding="utf-8"))
+        except Exception:
+            return {}
+
+    def save_update_offset(self, offset: int):
+        OFFSET_FILE.write_text(
+            json.dumps({"offset": offset}), encoding="utf-8"
+        )
+
+    def load_update_offset(self) -> int:
+        if not OFFSET_FILE.exists():
+            return 0
+        try:
+            return json.loads(OFFSET_FILE.read_text(encoding="utf-8")).get("offset", 0)
+        except Exception:
+            return 0

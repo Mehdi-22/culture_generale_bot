@@ -5,6 +5,7 @@ import requests
 from config import TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
 
 BASE_URL = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+API_BASE = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}"
 
 
 class TelegramSender:
@@ -58,3 +59,38 @@ class TelegramSender:
             if i < total - 1:
                 time.sleep(1.5)
         return success
+
+    def send_digest(self, pole: str, articles: list[dict]) -> bool:
+        date_str = datetime.now().strftime("%A %d %B %Y — %Hh%M")
+        lines = [f"DIGEST — {pole}", date_str, ""]
+        for i, a in enumerate(articles, 1):
+            lines.append(f"{i}. {a['title']}")
+            lines.append(f"   {a.get('source', '')}")
+            lines.append("")
+        lines.append("Reponds avec le numero pour generer la composition.")
+        lines.append('Ex : "3"  ou  "1,3"')
+        return self.send("\n".join(lines))
+
+    def get_updates(self, offset: int) -> list[dict]:
+        try:
+            resp = requests.get(
+                f"{API_BASE}/getUpdates",
+                params={"offset": offset, "timeout": 0, "limit": 50},
+                timeout=10,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            if data.get("ok"):
+                return data.get("result", [])
+        except Exception as e:
+            logging.warning(f"getUpdates erreur: {e}")
+        return []
+
+    def parse_selection(self, text: str) -> list[int]:
+        numbers = []
+        for part in text.replace(" ", "").split(","):
+            if part.isdigit():
+                n = int(part)
+                if 1 <= n <= 10:
+                    numbers.append(n)
+        return numbers[:2]

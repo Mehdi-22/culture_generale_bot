@@ -9,27 +9,60 @@ TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
 CHECK_INTERVAL_HOURS = int(os.getenv("CHECK_INTERVAL_HOURS", "24"))
 CLAUDE_MODEL = "claude-sonnet-4-6"
 
+DIGEST_HOUR = int(os.getenv("DIGEST_HOUR", "9"))
+
+WEEKLY_SCHEDULE = {
+    0: {"pole": "Maroc / Maghreb",           "sources": ["MAP News", "Hespress", "IRES", "Geopolitique.ma", "IRIS"]},
+    1: {"pole": "Afrique — Securite",        "sources": ["ISS Africa", "UNECA", "BBC Afrique"]},
+    2: {"pole": "Economie & Developpement",  "sources": ["Jeune Afrique", "UNECA", "Le Monde"]},
+    3: {"pole": "Defense & Strategie",       "sources": ["IRIS", "Ifri"]},
+    4: {"pole": "Geopolitique / RI",         "sources": ["RFI", "Le Monde", "Ifri", "IRIS"]},
+    5: {"pole": "Afrique panafricaine",      "sources": ["Jeune Afrique", "BBC Afrique"]},
+    6: {"pole": "Revue hebdomadaire",        "sources": []},
+}
+
+POLE_KEYWORDS = {
+    "Maroc / Maghreb": [
+        "Maroc", "Maghreb", "Algerie", "Algérie", "Tunisie", "Libye", "Sahel",
+        "Rabat", "Alger", "Tunis", "Tripoli", "marocain", "maghrebin",
+    ],
+    "Afrique — Securite": [
+        "Afrique", "securite", "sécurité", "gouvernance", "criminalite", "terrorisme",
+        "conflit", "paix", "Mali", "Niger", "Burkina", "Sahel", "jihadiste",
+        "security", "governance", "conflict", "peace", "Africa",
+    ],
+    "Economie & Developpement": [
+        "economie", "économie", "croissance", "dette", "commerce", "developpement",
+        "développement", "investissement", "PIB", "financement", "budget", "reforme",
+        "economy", "growth", "trade", "development", "investment",
+    ],
+    "Defense & Strategie": [
+        "defense", "défense", "militaire", "armement", "strategie", "stratégie",
+        "OTAN", "nucleaire", "nucléaire", "renseignement", "armée", "marine",
+        "military", "defense", "strategy", "weapons", "nuclear",
+    ],
+    "Geopolitique / RI": [
+        "geopolitique", "géopolitique", "diplomatie", "international", "ONU", "relations",
+        "souverainete", "accord", "sommet", "traite", "traité", "negociation",
+        "geopolitics", "diplomacy", "international", "UN", "summit", "treaty",
+    ],
+    "Afrique panafricaine": [
+        "Afrique", "panafricain", "Union africaine", "Sahel", "developpement",
+        "integration", "Africa", "African Union", "continental",
+    ],
+    "Revue hebdomadaire": [],
+}
+
 SITES_TO_MONITOR = [
-    # --- Medias generalistes (base existante) ---
-    {"url": "https://www.lemonde.fr/rss/une.xml", "name": "Le Monde", "type": "rss"},
-    {"url": "https://www.rfi.fr/fr/rss", "name": "RFI", "type": "rss"},
-    {"url": "https://www.mapnews.ma/fr/rss.xml", "name": "MAP News", "type": "rss"},
-    {"url": "https://www.hespress.com/feed", "name": "Hespress", "type": "rss"},
-
-    # --- Pole Maghreb / Geopolitique ---
-    # IRIS Observatoire du Maghreb : think tank FR, analyses geopolitiques Maghreb/crises
-    {"url": "https://www.iris-france.org/feed/", "name": "IRIS", "type": "rss"},
-
-    # --- Pole Afrique / Economie ---
-    # UNECA : source ONU, economie africaine, gouvernance, integration regionale
-    {"url": "http://www.uneca.org/rss.xml", "name": "UNECA", "type": "rss"},
-    # Jeune Afrique : media de reference panafricain, politique + economie + securite
-    {"url": "https://www.jeuneafrique.com/feed/", "name": "Jeune Afrique", "type": "rss"},
-    # BBC Afrique : couverture continentale large, evenements et crises en temps reel
-    {"url": "https://feeds.bbci.co.uk/afrique/rss.xml", "name": "BBC Afrique", "type": "rss"},
-
-    # --- Pole HTML scraping (Phase 2) ---
-    # Ifri : reference FR geopolitique, defense, energie, Maghreb
+    # priority: 1=think tanks/institutionnels, 2=medias reference, 3=medias locaux
+    {"url": "https://www.lemonde.fr/rss/une.xml", "name": "Le Monde", "type": "rss", "priority": 2},
+    {"url": "https://www.rfi.fr/fr/rss", "name": "RFI", "type": "rss", "priority": 2},
+    {"url": "https://www.mapnews.ma/fr/rss.xml", "name": "MAP News", "type": "rss", "priority": 3},
+    {"url": "https://www.hespress.com/feed", "name": "Hespress", "type": "rss", "priority": 3},
+    {"url": "https://www.iris-france.org/feed/", "name": "IRIS", "type": "rss", "priority": 1},
+    {"url": "http://www.uneca.org/rss.xml", "name": "UNECA", "type": "rss", "priority": 1},
+    {"url": "https://www.jeuneafrique.com/feed/", "name": "Jeune Afrique", "type": "rss", "priority": 2},
+    {"url": "https://feeds.bbci.co.uk/afrique/rss.xml", "name": "BBC Afrique", "type": "rss", "priority": 2},
     {
         "url": "https://www.ifri.org/fr/publications",
         "name": "Ifri",
@@ -37,8 +70,8 @@ SITES_TO_MONITOR = [
         "selector": ".views-row a",
         "base_url": "https://www.ifri.org",
         "min_title_len": 30,
+        "priority": 1,
     },
-    # Geopolitique.ma : analyse locale marocaine, geostrategie regionale
     {
         "url": "https://geopolitique.ma",
         "name": "Geopolitique.ma",
@@ -46,9 +79,8 @@ SITES_TO_MONITOR = [
         "selector": "article a[href]",
         "base_url": "https://geopolitique.ma",
         "min_title_len": 20,
+        "priority": 3,
     },
-    # --- Pole Playwright (Phase 3 — sites JS-rendered) ---
-    # IRES : source strategique marocaine, publications et rapports prospectifs
     {
         "url": "https://www.ires.ma/fr/publications",
         "name": "IRES",
@@ -57,8 +89,8 @@ SITES_TO_MONITOR = [
         "base_url": "https://www.ires.ma",
         "min_title_len": 25,
         "wait_ms": 1500,
+        "priority": 1,
     },
-    # ISS Africa : securite africaine, gouvernance, criminalite transnationale (EN)
     {
         "url": "https://issafrica.org/iss-today",
         "name": "ISS Africa",
@@ -68,8 +100,8 @@ SITES_TO_MONITOR = [
         "min_title_len": 20,
         "text_clean": "after_newline",
         "wait_ms": 4000,
+        "priority": 1,
     },
-    # Note: Policy Center insuffisant (1 lien seulement, scraping non rentable)
 ]
 
 RELEVANT_KEYWORDS = [

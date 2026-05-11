@@ -153,3 +153,32 @@ class WebScraper:
                 new_articles.append(article)
         logging.info(f"Nouveaux articles pertinents trouves: {len(new_articles)}")
         return new_articles
+
+    def get_articles_for_pole(self, source_names: list[str], pole_keywords: list[str]) -> list[dict]:
+        keywords = pole_keywords if pole_keywords else RELEVANT_KEYWORDS
+        sites = SITES_TO_MONITOR if not source_names else [
+            s for s in SITES_TO_MONITOR if s["name"] in source_names
+        ]
+        seen_titles: set[str] = set()
+        candidates = []
+        for site in sites:
+            articles = self.scrape_site(site)
+            for article in articles:
+                title = article.get("title", "").strip()
+                if not title:
+                    continue
+                topic_hash = Storage.hash(title)
+                if self.storage.is_seen(topic_hash):
+                    continue
+                if title in seen_titles:
+                    continue
+                text = (title + " " + article.get("summary", "")).lower()
+                if not any(kw.lower() in text for kw in keywords):
+                    continue
+                seen_titles.add(title)
+                article["_priority"] = site.get("priority", 3)
+                candidates.append(article)
+        candidates.sort(key=lambda a: a.get("_priority", 3))
+        result = candidates[:10]
+        logging.info(f"Pole articles selectionnes: {len(result)}")
+        return result
