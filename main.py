@@ -27,9 +27,33 @@ generator = CompositionGenerator()
 sender = TelegramSender()
 
 
+def send_weekly_planning():
+    from datetime import timedelta
+    today = datetime.now()
+    # Trouver le lundi de la semaine suivante (dimanche soir → semaine à venir)
+    days_until_monday = (7 - today.weekday()) % 7 or 7
+    monday = today + timedelta(days=days_until_monday)
+    friday = monday + timedelta(days=4)
+    date_range = f"{monday.strftime('%d')} au {friday.strftime('%d %B %Y')}"
+    lines = [
+        f"Planning CEM-CG — Semaine du {date_range}",
+        "",
+        f"Lundi    → Maroc / Maghreb",
+        f"Mercredi → Economie & Developpement",
+        f"Vendredi → Geopolitique / RI",
+        "",
+        f"Digest a {DIGEST_HOUR}h00. Reponds au numero pour la composition.",
+    ]
+    sender.send("\n".join(lines))
+    logging.info("Planning hebdomadaire envoye")
+
+
 def run_digest():
     weekday = datetime.now().weekday()
-    schedule = WEEKLY_SCHEDULE[weekday]
+    schedule = WEEKLY_SCHEDULE.get(weekday)
+    if schedule is None:
+        logging.info(f"Pas de digest prevu aujourd'hui (jour {weekday})")
+        return
     pole = schedule["pole"]
     source_names = schedule["sources"]
     keywords = POLE_KEYWORDS.get(pole, [])
@@ -110,11 +134,12 @@ def check_user_commands():
 
 if __name__ == "__main__":
     scheduler = BackgroundScheduler()
-    scheduler.add_job(run_digest, "cron", hour=DIGEST_HOUR, minute=0)
+    scheduler.add_job(run_digest, "cron", day_of_week="mon,wed,fri", hour=DIGEST_HOUR, minute=0)
     scheduler.add_job(check_user_commands, "interval", seconds=60)
+    scheduler.add_job(send_weekly_planning, "cron", day_of_week="sun", hour=20, minute=0)
     scheduler.start()
 
-    logging.info(f"Bot demarre — digest chaque jour a {DIGEST_HOUR}h00, polling commandes toutes les 60s")
+    logging.info(f"Bot demarre — digest L/M/V a {DIGEST_HOUR}h00 | planning dim 20h | polling 60s")
 
     run_digest()
 

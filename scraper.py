@@ -3,7 +3,7 @@ import feedparser
 import requests
 from bs4 import BeautifulSoup
 from storage import Storage
-from config import SITES_TO_MONITOR, RELEVANT_KEYWORDS
+from config import SITES_TO_MONITOR, RELEVANT_KEYWORDS, BOOST_KEYWORDS
 
 HEADERS = {
     "User-Agent": (
@@ -177,8 +177,9 @@ class WebScraper:
                     continue
                 seen_titles.add(title)
                 article["_priority"] = site.get("priority", 3)
+                article["_boost"] = any(kw.lower() in text for kw in BOOST_KEYWORDS)
                 candidates.append(article)
-        candidates.sort(key=lambda a: a.get("_priority", 3))
+        candidates.sort(key=lambda a: (0 if a.get("_boost") else 1, a.get("_priority", 3)))
         result = candidates[:10]
         logging.info(f"Pole articles selectionnes: {len(result)}")
         return result

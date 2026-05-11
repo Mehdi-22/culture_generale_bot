@@ -64,8 +64,9 @@ class TelegramSender:
         date_str = datetime.now().strftime("%A %d %B %Y — %Hh%M")
         lines = [f"DIGEST — {pole}", date_str, ""]
         for i, a in enumerate(articles, 1):
-            lines.append(f"{i}. {a['title']}")
-            lines.append(f"   {a.get('source', '')}")
+            prefix = "[>] " if a.get("_boost") else "    "
+            lines.append(f"{prefix}{i}. {a['title']}")
+            lines.append(f"       {a.get('source', '')}")
             lines.append("")
         lines.append("Reponds avec le numero pour generer la composition.")
         lines.append('Ex : "3"  ou  "1,3"')

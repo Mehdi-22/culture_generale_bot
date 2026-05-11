@@ -12,14 +12,21 @@ CLAUDE_MODEL = "claude-sonnet-4-6"
 DIGEST_HOUR = int(os.getenv("DIGEST_HOUR", "9"))
 
 WEEKLY_SCHEDULE = {
-    0: {"pole": "Maroc / Maghreb",           "sources": ["MAP News", "Hespress", "IRES", "Geopolitique.ma", "IRIS"]},
-    1: {"pole": "Afrique — Securite",        "sources": ["ISS Africa", "UNECA", "BBC Afrique"]},
-    2: {"pole": "Economie & Developpement",  "sources": ["Jeune Afrique", "UNECA", "Le Monde"]},
-    3: {"pole": "Defense & Strategie",       "sources": ["IRIS", "Ifri"]},
-    4: {"pole": "Geopolitique / RI",         "sources": ["RFI", "Le Monde", "Ifri", "IRIS"]},
-    5: {"pole": "Afrique panafricaine",      "sources": ["Jeune Afrique", "BBC Afrique"]},
-    6: {"pole": "Revue hebdomadaire",        "sources": []},
+    0: {"pole": "Maroc / Maghreb",          "sources": ["MAP News", "Hespress", "IRES", "Geopolitique.ma", "IRIS"]},
+    2: {"pole": "Economie & Developpement", "sources": ["Jeune Afrique", "UNECA", "Le Monde"]},
+    4: {"pole": "Geopolitique / RI",        "sources": ["RFI", "Le Monde", "Ifri", "IRIS"]},
 }
+
+BOOST_KEYWORDS = [
+    "drone", "drones", "IA", "intelligence artificielle", "AI", "robotique",
+    "cybersecurite", "cybersécurité", "technologie militaire", "satellite",
+    "guerre electronique", "guerre électronique", "renseignement militaire",
+    "Maroc Afrique", "partenariat militaire", "cooperation defense",
+    "coopération défense", "Forces Armees Royales", "FAR", "marine royale",
+    "OTAN Afrique", "base militaire", "accord defense", "accord défense",
+    "industrie armement", "industrie d'armement", "guerre hybride",
+    "proliferation", "prolifération", "conflit arme", "conflit armé",
+]
 
 POLE_KEYWORDS = {
     "Maroc / Maghreb": [
@@ -50,7 +57,6 @@ POLE_KEYWORDS = {
         "Afrique", "panafricain", "Union africaine", "Sahel", "developpement",
         "integration", "Africa", "African Union", "continental",
     ],
-    "Revue hebdomadaire": [],
 }
 
 SITES_TO_MONITOR = [
