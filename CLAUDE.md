@@ -220,8 +220,9 @@ https://github.com/Gamehdi05/CEM-CG
 | S2 | 2026-05 | 12 sources (RSS + HTML + Playwright), IRIS/UNECA/Ifri/ISS Africa/IRES/Geopolitique.ma |
 | S3 | 2026-05 | v2 : digest thématique + sélection interactive (pending_articles + getUpdates polling) |
 | S4 | 2026-05-11 | v2.1 : planning L/M/V, boost militaire/IA [>], planning dimanche 20h. BOT LANCÉ. |
-| S5 | 2026-05-12 | fix parse_selection (guillemets), fichiers déploiement VPS (cem-cg.service + deploy_cem.sh) |
+| S5 | 2026-05-12 | fix parse_selection (guillemets) ; fix boost matching (mot entier, retrait IA/AI/FAR) ; déploiement Docker sur VPS Contabo (`/home/freqtrader/cem-cg`, conteneur `cem-cg`, restart unless-stopped). Flux validé : digest → réponse N → composition Claude reçue ✅. |
 
 ## Prochaine étape recommandée
-Déployer sur le VPS Contabo (voir section "Déploiement VPS") pour un fonctionnement 24/7,
-puis valider le flux : recevoir digest → répondre `1` → composition Claude reçue sur Telegram.
+Rien d'urgent. Le bot tourne 24/7 sur le VPS. Surveiller le 1er digest automatique
+(mercredi 9h — Économie & Développement). Optionnel : passer la branche par défaut
+du repo GitHub de `main` à `master` (cf. note plus bas).
