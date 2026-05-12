@@ -1,3 +1,4 @@
+import re
 import logging
 import feedparser
 import requests
@@ -13,6 +14,11 @@ HEADERS = {
     )
 }
 TIMEOUT = 10
+
+# Matching des mots-cles de boost par mot entier (evite "ai" dans "francais" etc.)
+_BOOST_RE = re.compile(
+    r"(?<!\w)(?:" + "|".join(re.escape(kw.lower()) for kw in BOOST_KEYWORDS) + r")(?!\w)"
+)
 
 
 class WebScraper:
@@ -177,7 +183,7 @@ class WebScraper:
                     continue
                 seen_titles.add(title)
                 article["_priority"] = site.get("priority", 3)
-                article["_boost"] = any(kw.lower() in text for kw in BOOST_KEYWORDS)
+                article["_boost"] = bool(_BOOST_RE.search(text))
                 candidates.append(article)
         candidates.sort(key=lambda a: (0 if a.get("_boost") else 1, a.get("_priority", 3)))
         result = candidates[:10]

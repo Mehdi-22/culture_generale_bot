@@ -17,15 +17,22 @@ WEEKLY_SCHEDULE = {
     4: {"pole": "Geopolitique / RI",        "sources": ["RFI", "Le Monde", "Ifri", "IRIS"]},
 }
 
+# Mots-cles qui font remonter un article en tete du digest (matching par mot entier,
+# voir get_articles_for_pole). Pas de sigles courts type "IA"/"AI"/"FAR" : trop de
+# faux positifs en sous-chaine et meme en mot isole ("ai" = verbe avoir).
 BOOST_KEYWORDS = [
-    "drone", "drones", "IA", "intelligence artificielle", "AI", "robotique",
-    "cybersecurite", "cybersécurité", "technologie militaire", "satellite",
-    "guerre electronique", "guerre électronique", "renseignement militaire",
-    "Maroc Afrique", "partenariat militaire", "cooperation defense",
-    "coopération défense", "Forces Armees Royales", "FAR", "marine royale",
-    "OTAN Afrique", "base militaire", "accord defense", "accord défense",
-    "industrie armement", "industrie d'armement", "guerre hybride",
+    "drone", "drones", "intelligence artificielle", "robotique", "robotisation",
+    "cybersecurite", "cybersécurité", "cyberdefense", "cyberdéfense",
+    "technologie militaire", "technologies militaires", "satellite", "satellites",
+    "guerre electronique", "guerre électronique", "guerre hybride",
+    "renseignement militaire", "drones armes", "drones armés",
+    "partenariat militaire", "cooperation militaire", "coopération militaire",
+    "cooperation de defense", "coopération de défense",
+    "Forces Armees Royales", "Forces Armées Royales", "marine royale",
+    "base militaire", "bases militaires", "accord de defense", "accord de défense",
+    "industrie de l'armement", "industrie d'armement", "armement",
     "proliferation", "prolifération", "conflit arme", "conflit armé",
+    "Maroc-Afrique",
 ]
 
 POLE_KEYWORDS = {
