@@ -1,0 +1,8 @@
+services:
+  cem-cg:
+    build: .
+    container_name: cem-cg
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ./data:/app/data

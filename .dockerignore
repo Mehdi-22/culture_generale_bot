@@ -1,0 +1,15 @@
+.git
+.gitignore
+__pycache__/
+*.pyc
+*.pyo
+.ruff_cache/
+.env
+*.env
+data/
+bot.log
+venv/
+.venv/
+cem-cg.service
+deploy_cem.sh
+*.md
