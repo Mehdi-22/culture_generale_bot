@@ -4,7 +4,7 @@
 
 # Runtime data
 bot.log
-data/seen_topics.json
+data/
 
 # Prompt (private)
 PROMPT_CLAUDE_CODE.md
@@ -14,3 +14,5 @@ __pycache__/
 *.pyc
 *.pyo
 .ruff_cache/
+venv/
+.venv/

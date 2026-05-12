@@ -172,11 +172,38 @@ Configurable dans `BOOST_KEYWORDS` dans [config.py](config.py).
 
 ---
 
-## Lancer le bot
+## Lancer le bot (local — PC, tant qu'il est allumé)
 ```bash
 cd "c:\Users\gameh\Documents\Claude\Projects\Saas Voip\CEM-CG"
 python main.py
 ```
+
+## Déploiement VPS Contabo (24/7 — recommandé)
+Le bot tourne en service systemd sur le VPS, à côté des bots trading.
+Ressources : ~50 MB RAM idle, ~300 MB pic (chromium headless 3×/sem), ~500 MB disque.
+
+```bash
+# 1. SSH sur le VPS
+ssh -i ~/.ssh/id_ed25519 freqtrader@157.173.103.9
+
+# 2. Lancer le script de deploiement (clone + venv + playwright + service systemd)
+curl -sL https://raw.githubusercontent.com/Gamehdi05/CEM-CG/master/deploy_cem.sh -o /tmp/deploy_cem.sh
+bash /tmp/deploy_cem.sh
+# (1er passage : il cree /home/freqtrader/cem-cg/.env depuis l'exemple et s'arrete)
+
+# 3. Editer le .env avec les vraies cles, puis relancer
+nano /home/freqtrader/cem-cg/.env
+bash /tmp/deploy_cem.sh
+
+# Gestion du service
+sudo systemctl status cem-cg        # etat
+sudo systemctl restart cem-cg       # redemarrer
+journalctl -u cem-cg -f             # logs systemd
+tail -f /home/freqtrader/cem-cg/bot.log
+```
+
+Mise à jour après un push : `cd /home/freqtrader/cem-cg && git pull && sudo systemctl restart cem-cg`
+Fichiers de déploiement dans le repo : [cem-cg.service](cem-cg.service), [deploy_cem.sh](deploy_cem.sh)
 
 ## GitHub
 ```
@@ -193,6 +220,8 @@ https://github.com/Gamehdi05/CEM-CG
 | S2 | 2026-05 | 12 sources (RSS + HTML + Playwright), IRIS/UNECA/Ifri/ISS Africa/IRES/Geopolitique.ma |
 | S3 | 2026-05 | v2 : digest thématique + sélection interactive (pending_articles + getUpdates polling) |
 | S4 | 2026-05-11 | v2.1 : planning L/M/V, boost militaire/IA [>], planning dimanche 20h. BOT LANCÉ. |
+| S5 | 2026-05-12 | fix parse_selection (guillemets), fichiers déploiement VPS (cem-cg.service + deploy_cem.sh) |
 
 ## Prochaine étape recommandée
-Valider le flux complet : recevoir digest → répondre "1" → vérifier composition Claude reçue sur Telegram.
+Déployer sur le VPS Contabo (voir section "Déploiement VPS") pour un fonctionnement 24/7,
+puis valider le flux : recevoir digest → répondre `1` → composition Claude reçue sur Telegram.

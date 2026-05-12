@@ -1,0 +1,16 @@
+[Unit]
+Description=Bot CEM-CG - Veille geopolitique + compositions Telegram (Claude API)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=freqtrader
+WorkingDirectory=/home/freqtrader/cem-cg
+Environment=HOME=/home/freqtrader
+ExecStart=/home/freqtrader/cem-cg/venv/bin/python main.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
