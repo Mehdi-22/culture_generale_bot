@@ -69,7 +69,7 @@ class TelegramSender:
             lines.append(f"       {a.get('source', '')}")
             lines.append("")
         lines.append("Reponds avec le numero pour generer la composition.")
-        lines.append('Ex : "3"  ou  "1,3"')
+        lines.append("Ex : 3   ou   1,6   (2 max)")
         return self.send("\n".join(lines))
 
     def get_updates(self, offset: int) -> list[dict]:
@@ -88,8 +88,12 @@ class TelegramSender:
         return []
 
     def parse_selection(self, text: str) -> list[int]:
+        # Garde uniquement chiffres et virgules (l'utilisateur tape souvent "1" ou "1,6"
+        # avec guillemets en recopiant l'exemple du digest)
+        import re
+        cleaned = re.sub(r"[^0-9,]", "", text)
         numbers = []
-        for part in text.replace(" ", "").split(","):
+        for part in cleaned.split(","):
             if part.isdigit():
                 n = int(part)
                 if 1 <= n <= 10:
