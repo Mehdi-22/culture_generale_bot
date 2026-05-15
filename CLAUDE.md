@@ -228,9 +228,10 @@ https://github.com/Gamehdi05/CEM-CG
 | S3 | 2026-05 | v2 : digest thématique + sélection interactive (pending_articles + getUpdates polling) |
 | S4 | 2026-05-11 | v2.1 : planning L/M/V, boost militaire/IA [>], planning dimanche 20h. BOT LANCÉ. |
 | S5 | 2026-05-12 | fix parse_selection (guillemets) ; fix boost matching (mot entier, retrait IA/AI/FAR) ; déploiement Docker sur VPS Contabo (`/home/freqtrader/cem-cg`, conteneur `cem-cg`, restart unless-stopped). Flux validé : digest → réponse N → composition Claude reçue ✅. |
-| S6 | 2026-05-15 | v2.2 : archive automatique `data/compositions.md` (toutes les compositions) + URL libre → le bot scrape et génère directement. |
+| S6 | 2026-05-15 | v2.2 : archive automatique `data/compositions.md` + URL libre → scrape & génère. Migration sujets existants au 1er démarrage. Script `recover_compositions.py` (Telethon). Script `scripts/import_manual_compositions.py` : 6 compositions du 12-15/05 importées manuellement. Remote `mehdi` ajouté → `Mehdi-22/culture_generale_bot.git`. |
 
 ## Prochaine étape recommandée
-Mettre à jour le bot sur le VPS après le push : `cd /home/freqtrader/cem-cg && git pull && docker compose up -d --build`
-Tester la feature URL en envoyant un lien d'article directement sur Telegram.
-Récupérer l'archive : `cat /home/freqtrader/cem-cg/data/compositions.md`
+1. Sur le VPS : `cd /home/freqtrader/cem-cg && git pull && docker compose up -d --build`
+2. Importer les 6 compositions en attente : `python3 scripts/import_manual_compositions.py`
+3. Tester la feature URL en envoyant un lien directement sur Telegram.
+4. La composition Ormuz (12/05 21:43) est partielle — §8-§16 manquants, à compléter si retrouvés.
