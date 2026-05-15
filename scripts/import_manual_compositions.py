@@ -240,17 +240,40 @@ Par ailleurs, l'évolution de ce partenariat sino-africain s'inscrira inévitabl
     },
 
     # -----------------------------------------------------------------------
-    # COMPOSITION 4 — Blocus du detroit d'Ormuz / consequences pour l'Asie
-    # Source : inconnue — Genere le 12/05/2026 21:43 — PARTIELLE (§17-§21)
-    # Parts 1/3 et 2/3 manquantes (titre, source, URL, §1-§16 absents)
+    # COMPOSITION 4 — Blocus du detroit d'Ormuz / Inde, Japon, Coree du Sud
+    # Source : IRIS — Genere le 12/05/2026 21:43 — PARTIELLE
+    # §1-§7 recuperes (Partie 1/3), §8-§16 manquants, §17-§21 recuperes
     # -----------------------------------------------------------------------
     {
         "date": "2026-05-12 21:43",
-        "title": "Le blocus du détroit d'Ormuz et ses conséquences pour les économies asiatiques",
-        "source": "[source manquante — Parties 1/3 et 2/3 non recuperees]",
-        "url": "",
+        "title": "Les chaînes d'approvisionnement pétrolières asiatiques perturbées par le blocus du détroit d'Ormuz : perspectives pour l'Inde, le Japon et la Corée du Sud",
+        "source": "IRIS",
+        "url": "https://www.iris-france.org/les-chaines-dapprovisionnement-petrolieres-asiatiques-perturbees-par-le-blocus-du-detroit-dormuz-perspectives-pour-linde-le-japon-et-la-coree-du-sud/",
         "composition": """\
-> ⚠️ Composition partielle : §1 à §16 manquants (Parties 1/3 et 2/3 absentes).
+**Limites** : Depuis 28/02/2026 / moyen terme · Détroit d'Ormuz → Asie · Sécuritaire, économique, géopolitique
+
+**§1 - PRÉAMBULE**
+Le détroit d'Ormuz constitue l'une des voies maritimes les plus stratégiques au monde. Par ce goulet de quelques kilomètres transitent près de 20 % des approvisionnements pétroliers mondiaux. Depuis l'Antiquité, celui qui contrôle les passages maritimes contrôle les économies. Aujourd'hui, le blocus imposé par l'Iran à la suite de l'attaque américano-israélienne du 28 février 2026 rappelle cette vérité immuable. Les nations asiatiques, fortement dépendantes du pétrole du Golfe, se trouvent désormais face à une vulnérabilité énergétique majeure. Ce constat interpelle une profonde réflexion quant à la fragilité des chaînes d'approvisionnement pétrolières asiatiques face aux crises géopolitiques dans le Golfe Persique.
+
+**§2 - QUESTION POSÉE**
+Face à cette situation d'une gravité inédite, il serait judicieux de s'interroger sur les conséquences du blocus du détroit d'Ormuz sur les chaînes d'approvisionnement pétrolières de l'Inde, du Japon et de la Corée du Sud, ainsi que sur les stratégies d'adaptation que ces nations pourraient déployer.
+
+**§3 - IDÉE MAÎTRESSE**
+Bien que le blocus du détroit d'Ormuz constitue une menace sécuritaire immédiate pour les économies asiatiques, il n'en demeure pas moins qu'il révèle des vulnérabilités structurelles profondes et ouvre la voie à une recomposition durable des équilibres énergétiques et géopolitiques régionaux.
+
+**§4 - ANNONCE DU PLAN**
+Pour s'en convaincre, seront examinés successivement les impacts directs du blocus sur les approvisionnements énergétiques asiatiques, les enjeux géopolitiques et sécuritaires liés à la crise d'Ormuz, et les perspectives de résilience énergétique pour l'Inde, le Japon et la Corée du Sud.
+
+**§5 - ID1**
+Les ruptures d'approvisionnement en pétrole brut, conjuguées à la flambée des prix et à l'arrêt quasi total du trafic maritime, sont autant de chocs énergétiques qui constituent le premier vecteur de déstabilisation des économies asiatiques dépendantes du Golfe Persique.
+
+**§6 - IS11**
+De prime abord, la dépendance asiatique au pétrole du Golfe rend ces économies particulièrement vulnérables au blocus. À ce propos, l'Inde importe environ 60 % de son pétrole brut depuis la région du Golfe Persique. Le blocus d'Ormuz en constitue un exemple éloquent, paralysant directement les raffineries indiennes approvisionnées par voie maritime.
+
+**§7 - IS12**
+Par ailleurs, la fermeture du détroit provoque une flambée immédiate des prix du pétrole sur les marchés mondiaux. Dans ce cadre, les prix ont connu des hausses brutales affectant les économies importatrices nettes que sont le Japon et la Corée du Sud. À titre d'illustration, le Japon, dépourvu de ressources pétrolières propres, voit ses coûts énergétiques s'envoler, menaçant sa compétitivité industrielle.
+
+> ⚠️ §8 à §16 manquants (fin Partie 1/3 et Partie 2/3 non recuperees).
 
 **§17 - IS32**
 Aussi, la mobilisation des réserves stratégiques nationales constitue un amortisseur immédiat face aux ruptures d'approvisionnement. À ce propos, le Japon dispose de réserves stratégiques couvrant environ 150 jours de consommation nationale, conformément aux engagements de l'Agence Internationale de l'Énergie. L'activation partielle de ces réserves par Tokyo en témoigne éloquemment, permettant de limiter les effets de la crise dans l'immédiat.
