@@ -22,6 +22,7 @@ from generator import CompositionGenerator
 from telegram_bot import TelegramSender
 
 storage = Storage()
+storage.migrate_seen_to_archive()
 scraper = WebScraper(storage)
 generator = CompositionGenerator()
 sender = TelegramSender()

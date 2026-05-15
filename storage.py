@@ -90,6 +90,22 @@ class Storage:
         except Exception:
             return 0
 
+    def migrate_seen_to_archive(self):
+        if ARCHIVE_FILE.exists():
+            return
+        entries = sorted(self._data.items(), key=lambda x: x[1].get("seen_at", ""))
+        lines = ["# Archive des Compositions CEM-CG\n"]
+        for _, v in entries:
+            date_str = v.get("seen_at", "")[:16].replace("T", " ")
+            lines.append(
+                f"\n---\n\n"
+                f"## {date_str} — {v.get('title', 'Sans titre')}\n"
+                f"**URL** : {v.get('url', '')}\n\n"
+                f"*Composition generee avant l'archivage automatique (v2.2) — texte non disponible.*\n"
+            )
+        ARCHIVE_FILE.write_text("".join(lines), encoding="utf-8")
+        logging.info(f"Migration archive: {len(entries)} sujets existants importes dans compositions.md")
+
     def append_to_archive(self, article: dict, composition: str):
         date_str = datetime.now().strftime("%Y-%m-%d %H:%M")
         if not ARCHIVE_FILE.exists():
