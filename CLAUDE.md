@@ -1,6 +1,6 @@
 # Bot Culture Générale CEM-CG — Telegram (Claude)
 
-> Etat : v2.1 — RUNNING depuis 2026-05-11
+> Etat : v2.2 — RUNNING depuis 2026-05-11
 > Stack : Claude Anthropic API (claude-sonnet-4-6) · Python 3.10+ · APScheduler · Playwright
 
 ---
@@ -121,6 +121,13 @@ Configurable dans `BOOST_KEYWORDS` dans [config.py](config.py).
 - Répondre `3` → composition article 3
 - Répondre `1,3` → 2 compositions (article 1 puis article 3)
 - Max 2 articles par sélection
+- Envoyer un **lien URL** (`http://...`) → le bot scrape l'article et génère la composition directement
+
+## Archive des compositions (v2.2)
+Chaque composition générée (depuis digest ou URL libre) est automatiquement ajoutée à
+`data/compositions.md` (monté en volume Docker, persistent). Format Markdown :
+date, titre, source, URL, composition complète.
+Récupérable via SSH : `cat /home/freqtrader/cem-cg/data/compositions.md`
 
 ---
 
@@ -221,8 +228,9 @@ https://github.com/Gamehdi05/CEM-CG
 | S3 | 2026-05 | v2 : digest thématique + sélection interactive (pending_articles + getUpdates polling) |
 | S4 | 2026-05-11 | v2.1 : planning L/M/V, boost militaire/IA [>], planning dimanche 20h. BOT LANCÉ. |
 | S5 | 2026-05-12 | fix parse_selection (guillemets) ; fix boost matching (mot entier, retrait IA/AI/FAR) ; déploiement Docker sur VPS Contabo (`/home/freqtrader/cem-cg`, conteneur `cem-cg`, restart unless-stopped). Flux validé : digest → réponse N → composition Claude reçue ✅. |
+| S6 | 2026-05-15 | v2.2 : archive automatique `data/compositions.md` (toutes les compositions) + URL libre → le bot scrape et génère directement. |
 
 ## Prochaine étape recommandée
-Rien d'urgent. Le bot tourne 24/7 sur le VPS. Surveiller le 1er digest automatique
-(mercredi 9h — Économie & Développement). Optionnel : passer la branche par défaut
-du repo GitHub de `main` à `master` (cf. note plus bas).
+Mettre à jour le bot sur le VPS après le push : `cd /home/freqtrader/cem-cg && git pull && docker compose up -d --build`
+Tester la feature URL en envoyant un lien d'article directement sur Telegram.
+Récupérer l'archive : `cat /home/freqtrader/cem-cg/data/compositions.md`

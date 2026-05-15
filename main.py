@@ -98,6 +98,27 @@ def check_user_commands():
         if not text:
             continue
 
+        # URL libre envoyee par l'utilisateur → composition directe
+        if text.startswith("http://") or text.startswith("https://"):
+            logging.info(f"URL recue: {text[:80]}")
+            sender.send("Recuperation de l'article en cours...")
+            article = scraper.fetch_article_from_url(text)
+            if not article:
+                sender.send("Impossible de recuperer cet article. Verifie que le lien est accessible.")
+                continue
+            sender.send(f"Article recupere :\n{article['title'][:120]}\n\nGeneration en cours...")
+            composition = generator.generate(article)
+            if not composition:
+                sender.send("Erreur lors de la generation de la composition.")
+                continue
+            message_text = sender.format_message(article, composition)
+            sender.send(message_text)
+            storage.append_to_archive(article, composition)
+            topic_hash = storage.hash(article["title"])
+            storage.mark_seen(topic_hash, article["title"], article["url"])
+            logging.info(f"Composition URL archivee: {article['title'][:60]}")
+            continue
+
         numbers = sender.parse_selection(text)
         if not numbers:
             continue
@@ -118,12 +139,13 @@ def check_user_commands():
 
             message_text = sender.format_message(article, composition)
             ok = sender.send(message_text)
+            storage.append_to_archive(article, composition)
 
             topic_hash = storage.hash(article["title"])
             storage.mark_seen(topic_hash, article["title"], article["url"])
 
             if ok:
-                logging.info(f"Composition article {num} envoyee et marquee")
+                logging.info(f"Composition article {num} envoyee et archivee")
             else:
                 logging.error(f"Echec envoi composition article {num}")
 

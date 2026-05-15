@@ -140,6 +140,37 @@ class WebScraper:
             page.close()
         return articles
 
+    def fetch_article_from_url(self, url: str) -> dict | None:
+        try:
+            resp = requests.get(url, headers=HEADERS, timeout=TIMEOUT)
+            resp.raise_for_status()
+            soup = BeautifulSoup(resp.text, "html.parser")
+
+            title = ""
+            h1 = soup.find("h1")
+            if h1:
+                title = h1.get_text(strip=True)
+            elif soup.find("title"):
+                title = soup.find("title").get_text(strip=True)
+
+            container = soup.find("article") or soup.find("main") or soup.body
+            paragraphs = container.find_all("p") if container else []
+            text = " ".join(
+                p.get_text(strip=True) for p in paragraphs
+                if len(p.get_text(strip=True)) > 40
+            )
+            summary = text[:2000]
+
+            from urllib.parse import urlparse
+            source = urlparse(url).netloc.replace("www.", "")
+
+            if not title:
+                return None
+            return {"title": title, "summary": summary, "url": url, "source": source, "date": ""}
+        except Exception as e:
+            logging.error(f"Erreur fetch URL {url}: {e}")
+            return None
+
     def is_relevant(self, article: dict) -> bool:
         text = (article.get("title", "") + " " + article.get("summary", "")).lower()
         return any(kw.lower() in text for kw in RELEVANT_KEYWORDS)

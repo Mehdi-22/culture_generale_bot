@@ -9,6 +9,7 @@ from pathlib import Path
 DATA_FILE = Path("data/seen_topics.json")
 PENDING_FILE = Path("data/pending_articles.json")
 OFFSET_FILE = Path("data/update_offset.json")
+ARCHIVE_FILE = Path("data/compositions.md")
 
 
 def _normalize(text: str) -> str:
@@ -88,3 +89,18 @@ class Storage:
             return json.loads(OFFSET_FILE.read_text(encoding="utf-8")).get("offset", 0)
         except Exception:
             return 0
+
+    def append_to_archive(self, article: dict, composition: str):
+        date_str = datetime.now().strftime("%Y-%m-%d %H:%M")
+        if not ARCHIVE_FILE.exists():
+            ARCHIVE_FILE.write_text("# Archive des Compositions CEM-CG\n", encoding="utf-8")
+        entry = (
+            f"\n---\n\n"
+            f"## {date_str} — {article.get('title', 'Sans titre')}\n"
+            f"**Source** : {article.get('source', '')}\n"
+            f"**URL** : {article.get('url', '')}\n\n"
+            f"{composition}\n"
+        )
+        with ARCHIVE_FILE.open("a", encoding="utf-8") as f:
+            f.write(entry)
+        logging.info(f"Composition archivee: {article.get('title', '')[:60]}")
